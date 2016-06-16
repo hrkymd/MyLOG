@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="jp.ac.titech.itpro.sdl.mylog.MainActivity">
+
+    <fragment
+        android:id="@+id/map_fragment"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        >
+    </fragment>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="4">
+
+            <EditText
+                android:id="@+id/input_place_info"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:textSize="28sp"
+                android:text="@string/init_text"/>
+
+            <Button
+                android:id="@+id/ok_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="28sp"
+                android:layout_gravity="right"
+                android:text="@string/Back_button_label"
+                android:onClick="moveCamera"/>
+
+        </LinearLayout>
+
+
+        <ListView
+            android:id="@+id/place_List"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:background="#FFFFFF"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+            <requestFocus />
+        </ListView>
+    </LinearLayout>
+
+</LinearLayout>
