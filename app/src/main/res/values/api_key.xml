@@ -8,5 +8,5 @@
 
     2. Replace the "api_key" string in this file with your API key.
     -->
-    <string name="api_key">SET YOUR API KEY IN HERE</string>
+    <string name="api_key">SET_YOUR_API_KEY_IN_HERE</string>
 </resources>
