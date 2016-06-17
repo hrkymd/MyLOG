@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sdl.mylog;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -11,6 +12,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -22,6 +29,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -38,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private final static String TAG = "MainActivity";
 
-    private GoogleMap googleMap;
+    private GoogleMap googleMap = null;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private boolean requestingLocationUpdate;
@@ -63,8 +73,10 @@ public class MainActivity extends AppCompatActivity implements
      */
     private ArrayList<TLocationData> fLocationList;
     String filename = "locationLog.txt"; //ログを入れるファイル
-
-
+    private ListView fListView = null; //表示するリストビュー
+    private ArrayAdapter<TLocationData> fAdapter = null; //リスト表示のためのアダプター
+    private LinearLayout fMainLayout;
+    private InputMethodManager fInputMethodManager;
 
     /** 
      *onCreate 
@@ -73,6 +85,9 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.d(TAG, "onCrete");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -81,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
-                map.moveCamera(CameraUpdateFactory.zoomTo(15f));
+                map.moveCamera(CameraUpdateFactory.zoomTo(1f));
                 googleMap = map;
             }
         });
@@ -93,12 +108,55 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
 
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(16);
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(20);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         //locationListの初期化
         fLocationList = new ArrayList<>();
+        readfile(filename);
+
+        //LayoutファイルのListViewのリソースID
+        fListView = (ListView) findViewById(R.id.place_List);
+
+        //row.xmlによるレイアウト
+        fAdapter = new ArrayAdapter<TLocationData>(this, R.layout.row);
+        fMainLayout = (LinearLayout)findViewById(R.id.mainLayout);
+        fInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        fListView.setAdapter(fAdapter);
+
+        for(int i = 0;i < fLocationList.size(); i++) {
+
+//            Log.d(TAG, "fLocationList size : " + fLocationList.size());
+//            Log.d(TAG, "fName [ " + i + " ]: " + fLocationList.get(i).getfName());
+//            Log.d(TAG, "fLatitude  [ " + i + " ]:  " + fLocationList.get(i).getfLatitude());
+//            Log.d(TAG, "fLongitude  [ " + i + " ]:  " + fLocationList.get(i).getfLongitude());
+
+            fAdapter.add(fLocationList.get(i));
+
+        }
+
+        //ListViewアイテムを選択した場合の動作
+        fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //キーを隠す
+                fInputMethodManager.hideSoftInputFromWindow(fMainLayout.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                //背景にフォーカスを移す
+                fListView.requestFocus();
+
+                //カメラを動かす
+                moveCamera(fLocationList.get(position));
+
+                //選択したListViewアイテムを表示する
+                ListView list = (ListView) parent;
+                String selectedItem = list.getItemAtPosition(position).toString();
+                Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, selectedItem);
+            }
+        });
 
     }
 
@@ -110,15 +168,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         Log.d(TAG, "onStart");
-
-        //locationListの初期化
-        fLocationList = new ArrayList<>();
-        readfile(filename, fLocationList);
-        for(int i = 0;i < fLocationList.size(); i++) {
-            Log.d(TAG, "fName [ " + i + " ]: " + fLocationList.get(i).getfName());
-            Log.d(TAG, "fLatitude  [ " + i + " ]:  " + fLocationList.get(i).getfLatitude());
-            Log.d(TAG, "fLongitude  [ " + i + " ]:  " + fLocationList.get(i).getfLongitude());
-        }
+        //deleteFile(filename);
 
         super.onStart();
         googleApiClient.connect();
@@ -133,10 +183,12 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         Log.d(TAG, "onResume");
         super.onResume();
-        if (state != UpdatingState.STARTED && googleApiClient.isConnected())
+        if (state != UpdatingState.STARTED && googleApiClient.isConnected()) {
             startLocationUpdate(true);
-        else
+        }
+        else {
             state = UpdatingState.REQUESTING;
+        }
     }
 
     /** 
@@ -159,7 +211,11 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStop() {
         Log.d(TAG, "onStop");
         writeFile(filename);
-        deleteFile(filename);
+        //deleteFile(filename);
+
+        //Listの内容を削除
+        fLocationList.clear();
+
         googleApiClient.disconnect();
         super.onStop();
     }
@@ -174,6 +230,25 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "onConnected");
         if (state == UpdatingState.REQUESTING)
             startLocationUpdate(true);
+
+        if(fLocationList.isEmpty() != true) {
+            moveCamera(fLocationList.get(0));
+        }
+        //マーカーの表示
+        addMarkerToMap();
+
+        //マーカーをタップした時のイベント
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                // タップされたマーカーのタイトルを取得
+                String name = marker.getTitle().toString();
+
+                //取得したタイトルをトーストで表示
+                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
 
     /** 
@@ -204,8 +279,8 @@ public class MainActivity extends AppCompatActivity implements
     public void onLocationChanged(Location location) {
         Log.d(TAG, "onLocationChanged: " + location);
         fNowLocation = new Location(location);
-        //nowLocation.setLatitude(location.getLatitude());
-        //nowLocation.setLongitude(location.getLongitude());
+        //fNowLocation.setLatitude(location.getLatitude());
+        //fNowLocation.setLongitude(location.getLongitude());
         //googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
     }
 
@@ -249,28 +324,30 @@ public class MainActivity extends AppCompatActivity implements
         state = UpdatingState.STOPPED;
     }
 
-    public void moveCamera(View view) {
+    public void pushButton(View view) {
         System.out.println("push Button");
 
-        //if(fNowLocation.getLatitude() != Double.NaN && fNowLocation.getLongitude() != Double.NaN){
-          //  googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(fNowLocation.getLatitude(), fNowLocation.getLongitude())));
-//            googleMap.addMarker(new MarkerOptions().position(new LatLng(fNowLocation.getLatitude(), fNowLocation.getLongitude()))
-//                    .title("Latitude : " + fNowLocation.getLatitude() + "Longitude : " + fNowLocation.getLongitude()));
-//             googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(35.516963, 139.481467)));
-//            googleMap.addMarker(new MarkerOptions().position(new LatLng(35.516963, 139.481467))
-//                 .title("Latitude : " + 35.516963 + "Longitude : " + 139.481467));
-//      }
+        //キーボードを隠す
+        fInputMethodManager.hideSoftInputFromWindow(fMainLayout.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+        EditText editText = (EditText) findViewById(R.id.input_place_info);
+        String entry = editText.getText().toString();
 
 
+        TLocationData locationData = new TLocationData(entry, fNowLocation.getLatitude(), fNowLocation.getLongitude());
+        addMarkerToMap(locationData);
 
-        TLocationData locationData = new TLocationData("aaa", 35.516963, 139.481467);
+        //名前がない場合は保存されない。
+        if(locationData.getfName().equals("")){
+            Log.d(TAG, "Entry is empty");
+        } else {
+            moveCamera(locationData);
+            fLocationList.add(locationData);
+            fAdapter.add(locationData);
+        }
 
-        fLocationList.add(locationData);
-        //writeFile(filename);
-
-//        ArrayList<TLocationData> locationList = new ArrayList<>();
-
-//        TLocationData readlocation = new TLocationData();
+        //ボタン押下後にエントリ文字列を削除する
+        editText.setText("");
 
     }
 
@@ -282,11 +359,11 @@ public class MainActivity extends AppCompatActivity implements
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
 
             String str = String.valueOf(fLocationList.size());
-            pw.append(str + "\n");
+            pw.write(str + "\n");
 
             for(int i = 0; i< fLocationList.size(); i++){
-                str = fLocationList.get(i).toString();
-                pw.append(str);
+                String strn = fLocationList.get(i).toString();
+                pw.write(strn);
             }
 
             pw.close();
@@ -296,16 +373,15 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG,"writefile");
     }
 
-    public void readfile(String filename, ArrayList<TLocationData> locationList){
+    public void readfile(String filename){
         try{
             InputStream inputStream = openFileInput(filename);
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-
             int locationListSize = Integer.parseInt(br.readLine());
-            TLocationData tmp = new TLocationData();
             for(int i = 0; i < locationListSize; i++){
+                TLocationData tmp = new TLocationData();
                 tmp.readFrom(br);
-                locationList.add(tmp);
+                fLocationList.add(tmp);
             }
 
             Log.d(TAG,"readfile");
@@ -316,5 +392,45 @@ public class MainActivity extends AppCompatActivity implements
         }catch (IOException e){
             Log.d(TAG,"IOException");
         }
+
     }
+
+    /**
+     * リスト内の全ての要素のマーカーを表示
+     */
+    public void addMarkerToMap() {
+        for(int j = 0;j < fLocationList.size(); j++) {
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(fLocationList.get(j).getfLatitude(), fLocationList.get(j).getfLongitude())).
+                    title("Name :" + fLocationList.get(j).getfName()).snippet( "Latitude : " + fLocationList.get(j).getfLatitude() + " , Longitude : " + fLocationList.get(j).getfLongitude()));
+        }
+    }
+
+    /**
+     * 新しく追加された要素のマーカーの表示
+     * @param locationData
+     */
+    public void addMarkerToMap(TLocationData locationData) {
+
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(locationData.getfLatitude(), locationData.getfLongitude())).
+                    title("Name :" + locationData.getfName() ).snippet( "Latitude : " + locationData.getfLatitude() + " , Longitude : " + locationData.getfLongitude()));
+    }
+
+    /**
+     * リスト内の要素が選択された時にその場所にカメラを動かす
+     * @param locationData
+     */
+    public void moveCamera(TLocationData locationData){
+        googleMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(locationData.getfLatitude(), locationData.getfLongitude())));
+    }
+
+    /**
+     * Locationの場所に移動
+     *
+     * @param location
+     */
+    public void moveCamera(Location location){
+        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+    }
+
 }

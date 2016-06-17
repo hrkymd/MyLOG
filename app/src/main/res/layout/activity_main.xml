@@ -17,6 +17,7 @@
     </fragment>
 
     <LinearLayout
+        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -34,7 +35,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="5"
                 android:textSize="28sp"
-                android:text="@string/init_text"/>
+                android:text="@string/init_text"
+                android:inputType="text"/>
 
             <Button
                 android:id="@+id/ok_button"
@@ -44,7 +46,7 @@
                 android:textSize="28sp"
                 android:layout_gravity="right"
                 android:text="@string/Back_button_label"
-                android:onClick="moveCamera"/>
+                android:onClick="pushButton"/>
 
         </LinearLayout>
 
