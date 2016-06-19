@@ -24,11 +24,11 @@ public class TLocationData {
      *
      */
     public TLocationData(){
-        fName = null;
+        fName = "";
         fLatitude = Double.NaN;
         fLongitude = Double.NaN;
-        fType = null;
-        fDescription = null;
+        fType = "";
+        fDescription = "";
         fDate = new Date();
         fMarkerOption = new MarkerOptions();
     }
@@ -53,13 +53,17 @@ public class TLocationData {
         this.fMarkerOption = fMarkerOption;
     }
 
-    public TLocationData(String fName, double fLatitude, double fLongitude ){
+    /**
+     * コンストラクタ
+     */
+    public TLocationData(String fName, double fLatitude, double fLongitude ,String type){
         this.fName = fName;
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
+        this.fType = type;
 
         this.fMarkerOption = new MarkerOptions();
-        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title(this.fName)
+        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title("Name : " + this.fName + " , type : " + fType )
                 .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
     }
 
@@ -98,7 +102,7 @@ public class TLocationData {
      * @return
      */
     public String toString(){
-        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n";
+        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n" + fType + "\n";
         return str;
     }
 
@@ -111,6 +115,7 @@ public class TLocationData {
         pw.println(fName);
         pw.println(fLatitude);
         pw.println(fLongitude);
+        pw.println(fType);
     }
 
     /**
@@ -125,9 +130,10 @@ public class TLocationData {
         String strLongitude = br.readLine();
         fLatitude = Double.parseDouble(strLatitude);
         fLongitude = Double.parseDouble(strLongitude);
+        fType = br.readLine();
 
         //fMarkerOptionがnewされているか注意
-        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title(this.fName)
+        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title("Name : " + this.fName + " , type : " + fType )
                 .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
 
     }

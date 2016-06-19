@@ -23,6 +23,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -84,6 +85,9 @@ public class MainActivity extends AppCompatActivity implements
 
     //マーカーのリスト
     private ArrayList<Marker> fMarkerList = null;
+
+    //種類選択のスピナー
+    private Spinner typeSpinner;
 
     /** 
      *onCreate 
@@ -160,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements
                 //選択したListViewアイテムを表示する
                 ListView list = (ListView) parent;
                 String selectedItem = list.getItemAtPosition(position).toString();
-                Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, selectedItem);
             }
         });
@@ -185,6 +189,17 @@ public class MainActivity extends AppCompatActivity implements
         //fMarkerListの初期化
         fMarkerList = new ArrayList<>();
 
+        ArrayAdapter spinnerAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
+        spinnerAdapter.add("FOOD");
+        spinnerAdapter.add("FASHION");
+        spinnerAdapter.add("STORE");
+        spinnerAdapter.add("SCHOOL");
+        spinnerAdapter.add("SIGHTSEEING");
+        spinnerAdapter.add("OTHER");
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        typeSpinner = (Spinner) findViewById(R.id.type_spinner);
+        typeSpinner.setAdapter(spinnerAdapter);
 
     }
 
@@ -269,10 +284,10 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public boolean onMarkerClick(Marker marker) {
                 // タップされたマーカーのタイトルを取得
-                String name = marker.getTitle().toString();
+                //String name = marker.getTitle().toString();
 
                 //取得したタイトルをトーストで表示
-                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
@@ -359,11 +374,14 @@ public class MainActivity extends AppCompatActivity implements
         //キーボードを隠す
         fInputMethodManager.hideSoftInputFromWindow(fMainLayout.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+        //EditTextから名前を取得
         EditText editText = (EditText) findViewById(R.id.input_place_info);
         String entry = editText.getText().toString();
 
+        //spinnerから種類を取得
+        String type = (String)typeSpinner.getSelectedItem();
 
-        TLocationData locationData = new TLocationData(entry, fNowLocation.getLatitude(), fNowLocation.getLongitude());
+        TLocationData locationData = new TLocationData(entry, fNowLocation.getLatitude(), fNowLocation.getLongitude(), type);
         addMarkerToMap(locationData);
 
         //名前がない場合は保存されない。
@@ -451,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements
      * @param locationData
      */
     public void moveCamera(TLocationData locationData){
-        googleMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
+        googleMap.moveCamera(CameraUpdateFactory.zoomTo(18f));
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(locationData.getfLatitude(), locationData.getfLongitude())));
     }
 
@@ -482,7 +500,7 @@ public class MainActivity extends AppCompatActivity implements
         private static final String DEBUG = "DEBUG";
         //選択したListViewアイテム
         private TLocationData selectedItem = null;
-        private int fposition;
+        private int fPosition;
 
         //削除したダイアログの作成
         @Override
@@ -499,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     MainActivity activity =(MainActivity) getActivity();
-                    activity.removeItem(selectedItem, fposition);
+                    activity.removeItem(selectedItem, fPosition);
                 }
 
             });
@@ -511,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements
         public void setSelectedItem(TLocationData selectedItem, int position){
             Log.d(DEBUG, "setSelectedItem() - item : " + selectedItem);
             this.selectedItem = selectedItem;
-            this.fposition = position;
+            this.fPosition = position;
         }
     }
 
