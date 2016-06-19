@@ -38,10 +38,17 @@
                 android:text="@string/init_text"
                 android:inputType="text"/>
 
+            <Spinner
+                android:id="@+id/type_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="5" />
+
+
             <Button
                 android:id="@+id/ok_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:textSize="28sp"
                 android:layout_gravity="right"
