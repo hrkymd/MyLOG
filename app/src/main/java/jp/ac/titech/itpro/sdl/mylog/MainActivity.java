@@ -35,8 +35,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -70,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements
 
 
     private Location fNowLocation; //現在地の座標を保存
+    private Marker fNowMarker; //現在地のマーカー
+
     /*
     場所のリスト
     アプリが起動されるとlogファイルからデータを読み込み
@@ -123,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements
         locationRequest = new LocationRequest();
         locationRequest.setInterval(1000);
         locationRequest.setFastestInterval(20);
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         //locationListの初期化
         fLocationList = new ArrayList<>();
@@ -178,6 +182,9 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
+                //キーボードを隠す
+                fInputMethodManager.hideSoftInputFromWindow(fMainLayout.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
                 ListView list = (ListView) parent;
                 TLocationData selectedItem = (TLocationData) list.getItemAtPosition(position);
                 Log.d(TAG, "Long click : " + selectedItem);
@@ -193,9 +200,7 @@ public class MainActivity extends AppCompatActivity implements
 
         ArrayAdapter spinnerAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
         spinnerAdapter.add("FOOD");
-        spinnerAdapter.add("FASHION");
         spinnerAdapter.add("STORE");
-        spinnerAdapter.add("SCHOOL");
         spinnerAdapter.add("SIGHTSEEING");
         spinnerAdapter.add("OTHER");
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -327,6 +332,12 @@ public class MainActivity extends AppCompatActivity implements
         //fNowLocation.setLongitude(location.getLongitude());
         //googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
 
+        if(fNowMarker != null) {
+            fNowMarker.remove();
+        }
+
+        fNowMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(fNowLocation.getLatitude(), fNowLocation.getLongitude()))
+                .title("You're in here.").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location)));
         //addMarkerToMap(fNowLocation);
     }
 
@@ -400,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    public void writeFile(String filename) {
+    private void writeFile(String filename) {
 
         try{
 
@@ -422,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG,"writefile");
     }
 
-    public void readfile(String filename){
+    private void readfile(String filename){
         try{
             InputStream inputStream = openFileInput(filename);
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
@@ -446,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * リスト内の全ての要素のマーカーを表示
      */
-    public void addMarkerToMap() {
+    private void addMarkerToMap() {
         for(int j = 0;j < fLocationList.size(); j++) {
             fMarkerList.add(googleMap.addMarker(fLocationList.get(j).getfMarkerOption()));
         }
@@ -456,12 +467,12 @@ public class MainActivity extends AppCompatActivity implements
      * 新しく追加された要素のマーカーの表示
      * @param locationData
      */
-    public void addMarkerToMap(TLocationData locationData) {
+    private void addMarkerToMap(TLocationData locationData) {
         //googleMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
         fMarkerList.add(googleMap.addMarker(locationData.getfMarkerOption()));
     }
 
-    public void removeMarkerFromMap(int position){
+    private void removeMarkerFromMap(int position){
         fMarkerList.get(position).remove();
         fMarkerList.remove(position);
     }
@@ -470,7 +481,7 @@ public class MainActivity extends AppCompatActivity implements
      * リスト内の要素が選択された時にその場所にカメラを動かす
      * @param locationData
      */
-    public void moveCamera(TLocationData locationData){
+    private void moveCamera(TLocationData locationData){
         googleMap.moveCamera(CameraUpdateFactory.zoomTo(18f));
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(locationData.getfLatitude(), locationData.getfLongitude())));
     }
@@ -480,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements
      *
      * @param location
      */
-    public void moveCamera(Location location){
+    private void moveCamera(Location location){
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
     }
 
@@ -497,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements
     /*
     削除ダイアログを生成する内部クラス
      */
-    public static  class DeleteDialog extends DialogFragment {
+    private static  class DeleteDialog extends DialogFragment {
 
         private static final String DEBUG = "DEBUG";
         //選択したListViewアイテム

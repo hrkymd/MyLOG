@@ -2,6 +2,7 @@ package jp.ac.titech.itpro.sdl.mylog;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -275,19 +276,14 @@ public class TLocationData {
     private void setMarkerOptions(){
 
         String[] typeString = {"FOOD",
-                "FASHION",
                 "STORE",
-                "SCHOOL",
                 "SIGHTSEEING",
                 "OTHER"};
 
-        float[] color = {BitmapDescriptorFactory.HUE_RED,
-                BitmapDescriptorFactory.HUE_BLUE,
-                BitmapDescriptorFactory.HUE_GREEN,
-                BitmapDescriptorFactory.HUE_ORANGE,
-                BitmapDescriptorFactory.HUE_CYAN,
-                BitmapDescriptorFactory.HUE_MAGENTA
-        };
+        BitmapDescriptor[] icons = {BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant),
+                BitmapDescriptorFactory.fromResource(R.drawable.ic_local_mall),
+                BitmapDescriptorFactory.fromResource(R.drawable.ic_photo_camera),
+                BitmapDescriptorFactory.fromResource(R.drawable.ic_star_border)};
 
         for(int i = 0; i < typeString.length; i++){
             if(this.fType.equals(typeString[i])){
@@ -295,7 +291,7 @@ public class TLocationData {
                 this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
                         .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate )
                         .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude)
-                        .icon(BitmapDescriptorFactory.defaultMarker(color[i]));
+                        .icon(icons[i]);
                 break;
             }
         }
