@@ -1,5 +1,8 @@
 package jp.ac.titech.itpro.sdl.mylog;
 
+import android.util.Log;
+
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -63,10 +66,8 @@ public class TLocationData {
         Calendar calendar = Calendar.getInstance();
         fDate = calendar.get(Calendar.YEAR) + "/" + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE);
 
-        this.fMarkerOption = new MarkerOptions();
-        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
-                .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate )
-                .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
+        Log.d("a", fType);
+        setMarkerOptions();
 
 
     }
@@ -138,10 +139,7 @@ public class TLocationData {
         fType = br.readLine();
         fDate = br.readLine();
 
-        //fMarkerOptionがnewされているか注意
-        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
-                .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate)
-                .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
+        setMarkerOptions();
 
     }
 
@@ -272,6 +270,36 @@ public class TLocationData {
      */
     public void setfMarkerOption(MarkerOptions fMarkerOption) {
         this.fMarkerOption = fMarkerOption;
+    }
+
+    private void setMarkerOptions(){
+
+        String[] typeString = {"FOOD",
+                "FASHION",
+                "STORE",
+                "SCHOOL",
+                "SIGHTSEEING",
+                "OTHER"};
+
+        float[] color = {BitmapDescriptorFactory.HUE_RED,
+                BitmapDescriptorFactory.HUE_BLUE,
+                BitmapDescriptorFactory.HUE_GREEN,
+                BitmapDescriptorFactory.HUE_ORANGE,
+                BitmapDescriptorFactory.HUE_CYAN,
+                BitmapDescriptorFactory.HUE_MAGENTA
+        };
+
+        for(int i = 0; i < typeString.length; i++){
+            if(this.fType.equals(typeString[i])){
+                this.fMarkerOption = new MarkerOptions();
+                this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
+                        .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate )
+                        .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude)
+                        .icon(BitmapDescriptorFactory.defaultMarker(color[i]));
+                break;
+            }
+        }
+
     }
 }
 

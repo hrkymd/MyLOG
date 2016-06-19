@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements
 
         Log.d(TAG, "onCrete");
 
+        //deleteFile(filename);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
