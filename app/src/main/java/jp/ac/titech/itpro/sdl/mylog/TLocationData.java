@@ -1,13 +1,12 @@
 package jp.ac.titech.itpro.sdl.mylog;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
+import java.util.Calendar;
 
 public class TLocationData {
     private String fName; //場所の名前
@@ -15,9 +14,8 @@ public class TLocationData {
     private double fLongitude; //場所の位置情報(経度)
     private String fType; //場所の種類 (food, sightseeingなど)
     private String fDescription; //場所の説明
-    private Date fDate; //日付
+    private String fDate; //日付
     private MarkerOptions fMarkerOption; //マーカー情報
-    private Marker fMarker;
 
     /**
      * デフォルトコンストラクタ
@@ -29,7 +27,7 @@ public class TLocationData {
         fLongitude = Double.NaN;
         fType = "";
         fDescription = "";
-        fDate = new Date();
+        fDate = "";
         fMarkerOption = new MarkerOptions();
     }
 
@@ -43,7 +41,7 @@ public class TLocationData {
      * @param fDate
      * @param fMarkerOption
      */
-    public TLocationData(String fName, double fLatitude, double fLongitude, String fType, String fDescription, Date fDate, MarkerOptions fMarkerOption) {
+    public TLocationData(String fName, double fLatitude, double fLongitude, String fType, String fDescription, String fDate, MarkerOptions fMarkerOption) {
         this.fName = fName;
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
@@ -62,9 +60,15 @@ public class TLocationData {
         this.fLongitude = fLongitude;
         this.fType = type;
 
+        Calendar calendar = Calendar.getInstance();
+        fDate = calendar.get(Calendar.YEAR) + "/" + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE);
+
         this.fMarkerOption = new MarkerOptions();
-        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title("Name : " + this.fName + " , type : " + fType )
+        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
+                .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate )
                 .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
+
+
     }
 
     /**
@@ -102,7 +106,7 @@ public class TLocationData {
      * @return
      */
     public String toString(){
-        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n" + fType + "\n";
+        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n" + fType + "\n" + fDate + "\n";
         return str;
     }
 
@@ -116,6 +120,7 @@ public class TLocationData {
         pw.println(fLatitude);
         pw.println(fLongitude);
         pw.println(fType);
+        pw.println(fDate);
     }
 
     /**
@@ -131,9 +136,11 @@ public class TLocationData {
         fLatitude = Double.parseDouble(strLatitude);
         fLongitude = Double.parseDouble(strLongitude);
         fType = br.readLine();
+        fDate = br.readLine();
 
         //fMarkerOptionがnewされているか注意
-        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title("Name : " + this.fName + " , type : " + fType )
+        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
+                .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate)
                 .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
 
     }
@@ -235,7 +242,7 @@ public class TLocationData {
      * 日付の取得
      * @return
      */
-    public Date getfDate() {
+    public String getfDate() {
         return fDate;
     }
 
@@ -244,7 +251,7 @@ public class TLocationData {
      * 日付の設定
      * @param fDate
      */
-    public void setfDate(Date fDate) {
+    public void setfDate(String fDate) {
         this.fDate = fDate;
     }
 
