@@ -1,7 +1,11 @@
 package jp.ac.titech.itpro.sdl.mylog;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -9,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +36,6 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -71,12 +75,15 @@ public class MainActivity extends AppCompatActivity implements
     リストに表示する
     アプリが終了する時に現在のリストの状態を保存する.
      */
-    private ArrayList<TLocationData> fLocationList;
+    private ArrayList<TLocationData> fLocationList = null;
     String filename = "locationLog.txt"; //ログを入れるファイル
     private ListView fListView = null; //表示するリストビュー
     private ArrayAdapter<TLocationData> fAdapter = null; //リスト表示のためのアダプター
     private LinearLayout fMainLayout;
     private InputMethodManager fInputMethodManager;
+
+    //マーカーのリスト
+    private ArrayList<Marker> fMarkerList = null;
 
     /** 
      *onCreate 
@@ -158,6 +165,27 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
+        //ListVIewアイテムの長押しでListViewアイテムを削除する
+        //リスナーはAdapterView.onItemLongClickListener()を利用する
+        fListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                ListView list = (ListView) parent;
+                TLocationData selectedItem = (TLocationData) list.getItemAtPosition(position);
+                Log.d(TAG, "Long click : " + selectedItem);
+                showDialogFragment(selectedItem, position);
+
+
+                return false;
+            }
+        });
+
+        //fMarkerListの初期化
+        fMarkerList = new ArrayList<>();
+
+
     }
 
     /** 
@@ -168,9 +196,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         Log.d(TAG, "onStart");
-        //deleteFile(filename);
-
         super.onStart();
+        //deleteFile(filename);
         googleApiClient.connect();
     }
 
@@ -282,6 +309,8 @@ public class MainActivity extends AppCompatActivity implements
         //fNowLocation.setLatitude(location.getLatitude());
         //fNowLocation.setLongitude(location.getLongitude());
         //googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+
+        //addMarkerToMap(fNowLocation);
     }
 
     @Override
@@ -392,7 +421,6 @@ public class MainActivity extends AppCompatActivity implements
         }catch (IOException e){
             Log.d(TAG,"IOException");
         }
-
     }
 
     /**
@@ -400,8 +428,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     public void addMarkerToMap() {
         for(int j = 0;j < fLocationList.size(); j++) {
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(fLocationList.get(j).getfLatitude(), fLocationList.get(j).getfLongitude())).
-                    title("Name :" + fLocationList.get(j).getfName()).snippet( "Latitude : " + fLocationList.get(j).getfLatitude() + " , Longitude : " + fLocationList.get(j).getfLongitude()));
+            fMarkerList.add(googleMap.addMarker(fLocationList.get(j).getfMarkerOption()));
         }
     }
 
@@ -410,9 +437,13 @@ public class MainActivity extends AppCompatActivity implements
      * @param locationData
      */
     public void addMarkerToMap(TLocationData locationData) {
+        //googleMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
+        fMarkerList.add(googleMap.addMarker(locationData.getfMarkerOption()));
+    }
 
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(locationData.getfLatitude(), locationData.getfLongitude())).
-                    title("Name :" + locationData.getfName() ).snippet( "Latitude : " + locationData.getfLatitude() + " , Longitude : " + locationData.getfLongitude()));
+    public void removeMarkerFromMap(int position){
+        fMarkerList.get(position).remove();
+        fMarkerList.remove(position);
     }
 
     /**
@@ -433,4 +464,62 @@ public class MainActivity extends AppCompatActivity implements
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
     }
 
+    //FragmentManagerdeDialogを管理する
+    private void showDialogFragment(TLocationData selectedItem, int position){
+        FragmentManager manager = getFragmentManager();
+        DeleteDialog dialog = new DeleteDialog();
+        dialog.setSelectedItem(selectedItem, position);
+
+        dialog.show(manager, "dialog");
+
+    }
+
+    /*
+    削除ダイアログを生成する内部クラス
+     */
+    public static  class DeleteDialog extends DialogFragment {
+
+        private static final String DEBUG = "DEBUG";
+        //選択したListViewアイテム
+        private TLocationData selectedItem = null;
+        private int fposition;
+
+        //削除したダイアログの作成
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState){
+            Log.d(DEBUG, "onCreateDialog()");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Delete entry");
+            builder.setMessage("Are you really?");
+
+            //positiveを選択した場合の処理
+            builder.setPositiveButton("Yes I'm serious.", new DialogInterface.OnClickListener(){
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    MainActivity activity =(MainActivity) getActivity();
+                    activity.removeItem(selectedItem, fposition);
+                }
+
+            });
+            AlertDialog dialog = builder.create();
+            return  dialog;
+        }
+
+        //選択したアイテムをセットする
+        public void setSelectedItem(TLocationData selectedItem, int position){
+            Log.d(DEBUG, "setSelectedItem() - item : " + selectedItem);
+            this.selectedItem = selectedItem;
+            this.fposition = position;
+        }
+    }
+
+    //選択したアイテムを削除する
+    protected void removeItem(TLocationData selectedItem, int position){
+        Log.d(TAG, "doPositiveClock() - item : " + selectedItem);
+        fAdapter.remove(selectedItem);
+        fLocationList.remove(position);
+        removeMarkerFromMap(position);
+    }
 }

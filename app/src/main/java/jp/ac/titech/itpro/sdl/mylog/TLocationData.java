@@ -1,5 +1,9 @@
 package jp.ac.titech.itpro.sdl.mylog;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,6 +16,8 @@ public class TLocationData {
     private String fType; //場所の種類 (food, sightseeingなど)
     private String fDescription; //場所の説明
     private Date fDate; //日付
+    private MarkerOptions fMarkerOption; //マーカー情報
+    private Marker fMarker;
 
     /**
      * デフォルトコンストラクタ
@@ -24,6 +30,7 @@ public class TLocationData {
         fType = null;
         fDescription = null;
         fDate = new Date();
+        fMarkerOption = new MarkerOptions();
     }
 
     /**
@@ -34,14 +41,16 @@ public class TLocationData {
      * @param fType
      * @param fDescription
      * @param fDate
+     * @param fMarkerOption
      */
-    public TLocationData(String fName, double fLatitude, double fLongitude, String fType, String fDescription, Date fDate) {
+    public TLocationData(String fName, double fLatitude, double fLongitude, String fType, String fDescription, Date fDate, MarkerOptions fMarkerOption) {
         this.fName = fName;
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
         this.fType = fType;
         this.fDescription = fDescription;
         this.fDate = fDate;
+        this.fMarkerOption = fMarkerOption;
     }
 
     public TLocationData(String fName, double fLatitude, double fLongitude ){
@@ -49,6 +58,9 @@ public class TLocationData {
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
 
+        this.fMarkerOption = new MarkerOptions();
+        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title(this.fName)
+                .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
     }
 
     /**
@@ -62,6 +74,7 @@ public class TLocationData {
         this.fType = src.fType;
         this.fDescription = src.fDescription;
         this.fDate = src.fDate;
+        this.fMarkerOption = src.fMarkerOption;
     }
 
     /**
@@ -112,6 +125,11 @@ public class TLocationData {
         String strLongitude = br.readLine();
         fLatitude = Double.parseDouble(strLatitude);
         fLongitude = Double.parseDouble(strLongitude);
+
+        //fMarkerOptionがnewされているか注意
+        this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude)).title(this.fName)
+                .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude);
+
     }
 
 
@@ -225,6 +243,22 @@ public class TLocationData {
     }
 
 
+    /**
+     * getfMarkerOption
+     * マーカオプションの取得
+     * @return
+     */
+    public MarkerOptions getfMarkerOption() {
+        return fMarkerOption;
+    }
 
+    /**
+     * setfMarkerOption
+     * マーカーオプションの設定
+     * @param fMarkerOption
+     */
+    public void setfMarkerOption(MarkerOptions fMarkerOption) {
+        this.fMarkerOption = fMarkerOption;
+    }
 }
 
