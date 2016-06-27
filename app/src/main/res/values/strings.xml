@@ -3,4 +3,5 @@
     <string name="toast_requires_permission">This application requires permission %s</string>
     <string name="Back_button_label">ADD</string>
     <string name="init_text">place_name</string>
+    <string name="description_text">description</string>
 </resources>

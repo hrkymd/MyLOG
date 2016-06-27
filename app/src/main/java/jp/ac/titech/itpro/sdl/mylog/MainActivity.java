@@ -7,6 +7,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -70,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements
 
     private final static int REQCODE_PERMISSIONS = 1111;
 
-
     private Location fNowLocation; //現在地の座標を保存
     private Marker fNowMarker; //現在地のマーカー
 
@@ -83,15 +83,16 @@ public class MainActivity extends AppCompatActivity implements
     private ArrayList<TLocationData> fLocationList = null;
     String filename = "locationLog.txt"; //ログを入れるファイル
     private ListView fListView = null; //表示するリストビュー
-    private ArrayAdapter<TLocationData> fAdapter = null; //リスト表示のためのアダプター
+    private TLocationListArrayAdapter fAdapter = null; //リスト表示のためのアダプター
     private LinearLayout fMainLayout;
     private InputMethodManager fInputMethodManager;
 
     //マーカーのリスト
     private ArrayList<Marker> fMarkerList = null;
-
     //種類選択のスピナー
     private Spinner typeSpinner;
+
+    boolean firstPlace; // 最初に現在地を表示するためのフラフ
 
     /** 
      *onCreate 
@@ -125,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
 
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(20);
+        locationRequest.setInterval(5000); //5秒間隔
+        locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         //locationListの初期化
@@ -137,22 +138,24 @@ public class MainActivity extends AppCompatActivity implements
         fListView = (ListView) findViewById(R.id.place_List);
 
         //row.xmlによるレイアウト
-        fAdapter = new ArrayAdapter<TLocationData>(this, R.layout.row);
+        //fAdapter = new ArrayAdapter<TLocationData>(this, R.layout.row);
+        fAdapter = new TLocationListArrayAdapter(this, R.layout.row, fLocationList);
         fMainLayout = (LinearLayout)findViewById(R.id.mainLayout);
         fInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 
         fListView.setAdapter(fAdapter);
 
-        for(int i = 0;i < fLocationList.size(); i++) {
-
+//        for(int i = 0; i < fLocationList.size(); i++) {
+//        for(int i = 0; i < 4; i++) {
 //            Log.d(TAG, "fLocationList size : " + fLocationList.size());
 //            Log.d(TAG, "fName [ " + i + " ]: " + fLocationList.get(i).getfName());
 //            Log.d(TAG, "fLatitude  [ " + i + " ]:  " + fLocationList.get(i).getfLatitude());
 //            Log.d(TAG, "fLongitude  [ " + i + " ]:  " + fLocationList.get(i).getfLongitude());
-
-            fAdapter.add(fLocationList.get(i));
-
-        }
+            //ICONのセット
+            //setIcons(fLocationList.get(i));
+//            Log.d("error", "error error error error error error");
+//            fAdapter.add(fLocationList.get(i));
+//        }
 
         //ListViewアイテムを選択した場合の動作
         fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -187,7 +190,8 @@ public class MainActivity extends AppCompatActivity implements
 
                 ListView list = (ListView) parent;
                 TLocationData selectedItem = (TLocationData) list.getItemAtPosition(position);
-                Log.d(TAG, "Long click : " + selectedItem);
+
+                Log.d(TAG, "Long click : " + selectedItem + "position : " + position);
                 showDialogFragment(selectedItem, position);
 
 
@@ -208,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements
         typeSpinner = (Spinner) findViewById(R.id.type_spinner);
         typeSpinner.setAdapter(spinnerAdapter);
 
+        firstPlace = false;
+
     }
 
     /** 
@@ -219,6 +225,11 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         Log.d(TAG, "onStart");
         super.onStart();
+        if(firstPlace != false) {
+            readfile(filename);
+            fAdapter = new TLocationListArrayAdapter(this, R.layout.row, fLocationList);
+            fListView.setAdapter(fAdapter);
+        }
         //deleteFile(filename);
         googleApiClient.connect();
     }
@@ -232,6 +243,10 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         Log.d(TAG, "onResume");
         super.onResume();
+        //readfile(filename);
+        //fAdapter = new TLocationListArrayAdapter(this, R.layout.row, fLocationList);
+        //fListView.setAdapter(fAdapter);
+
         if (state != UpdatingState.STARTED && googleApiClient.isConnected()) {
             startLocationUpdate(true);
         }
@@ -247,6 +262,12 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause");
+        //writeFile(filename);
+        //deleteFile(filename);
+
+        //Listの内容を削除
+        //fLocationList.clear();
+
         if (state == UpdatingState.STARTED)
             stopLocationUpdate();
         super.onPause();
@@ -261,9 +282,13 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "onStop");
         writeFile(filename);
         //deleteFile(filename);
-
         //Listの内容を削除
         fLocationList.clear();
+
+        for(int i = 0; i < fMarkerList.size(); i++){
+            fMarkerList.get(i).remove();
+        }
+        fMarkerList.clear();
 
         googleApiClient.disconnect();
         super.onStop();
@@ -280,9 +305,10 @@ public class MainActivity extends AppCompatActivity implements
         if (state == UpdatingState.REQUESTING)
             startLocationUpdate(true);
 
-        if(fLocationList.isEmpty() != true) {
-            moveCamera(fLocationList.get(0));
-        }
+//        if(fLocationList.isEmpty() != true) {
+//            moveCamera(fLocationList.get(0));
+//        }
+
         //マーカーの表示
         addMarkerToMap();
 
@@ -330,7 +356,11 @@ public class MainActivity extends AppCompatActivity implements
         fNowLocation = new Location(location);
         //fNowLocation.setLatitude(location.getLatitude());
         //fNowLocation.setLongitude(location.getLongitude());
-        //googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+        if(firstPlace == false) {
+            googleMap.moveCamera(CameraUpdateFactory.zoomTo(18f));
+            googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+            firstPlace = true;
+        }
 
         if(fNowMarker != null) {
             fNowMarker.remove();
@@ -394,20 +424,28 @@ public class MainActivity extends AppCompatActivity implements
         //spinnerから種類を取得
         String type = (String)typeSpinner.getSelectedItem();
 
-        TLocationData locationData = new TLocationData(entry, fNowLocation.getLatitude(), fNowLocation.getLongitude(), type);
-        addMarkerToMap(locationData);
+        //EditTextから名前を取得
+        EditText descriptionText = (EditText) findViewById(R.id.description_text);
+        String desc = descriptionText.getText().toString();
+
+        TLocationData locationData = new TLocationData(entry, fNowLocation.getLatitude(), fNowLocation.getLongitude(), type, desc);
+        //ICONのセット
+        setIcons(locationData);
+
 
         //名前がない場合は保存されない。
         if(locationData.getfName().equals("")){
             Log.d(TAG, "Entry is empty");
         } else {
             moveCamera(locationData);
-            fLocationList.add(locationData);
+            //fLocationList.add(locationData);
+            addMarkerToMap(locationData);
             fAdapter.add(locationData);
         }
 
         //ボタン押下後にエントリ文字列を削除する
         editText.setText("");
+        descriptionText.setText("");
 
     }
 
@@ -441,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements
             for(int i = 0; i < locationListSize; i++){
                 TLocationData tmp = new TLocationData();
                 tmp.readFrom(br);
+                setIcons(tmp);
                 fLocationList.add(tmp);
             }
 
@@ -468,13 +507,12 @@ public class MainActivity extends AppCompatActivity implements
      * @param locationData
      */
     private void addMarkerToMap(TLocationData locationData) {
-        //googleMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
         fMarkerList.add(googleMap.addMarker(locationData.getfMarkerOption()));
     }
 
     private void removeMarkerFromMap(int position){
-        fMarkerList.get(position).remove();
-        fMarkerList.remove(position);
+        fMarkerList.get(position).remove(); //マーカーを削除
+        fMarkerList.remove(position); //マーカーリストから削除
     }
 
     /**
@@ -508,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements
     /*
     削除ダイアログを生成する内部クラス
      */
-    private static  class DeleteDialog extends DialogFragment {
+    public static  class DeleteDialog extends DialogFragment {
 
         private static final String DEBUG = "DEBUG";
         //選択したListViewアイテム
@@ -550,7 +588,27 @@ public class MainActivity extends AppCompatActivity implements
     protected void removeItem(TLocationData selectedItem, int position){
         Log.d(TAG, "doPositiveClock() - item : " + selectedItem);
         fAdapter.remove(selectedItem);
-        fLocationList.remove(position);
+//        fLocationList.remove(position);
         removeMarkerFromMap(position);
+    }
+
+    public void setIcons(TLocationData locationData){
+        switch (locationData.getfType()){
+            case "FOOD":
+                locationData.setfIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_restaurant));
+                break;
+            case "STORE":
+                locationData.setfIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_local_mall));
+                break;
+            case "SIGHTSEEING":
+                locationData.setfIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_photo_camera));
+                break;
+            case "OTHER":
+                locationData.setfIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_star_border));
+                break;
+            default:
+                locationData.setfIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+                break;
+        }
     }
 }

@@ -1,5 +1,6 @@
 package jp.ac.titech.itpro.sdl.mylog;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -21,6 +22,8 @@ public class TLocationData {
     private String fDate; //日付
     private MarkerOptions fMarkerOption; //マーカー情報
 
+    private Bitmap fIcon;//アイコン
+
     /**
      * デフォルトコンストラクタ
      *
@@ -33,6 +36,7 @@ public class TLocationData {
         fDescription = "";
         fDate = "";
         fMarkerOption = new MarkerOptions();
+        fIcon = null;
     }
 
     /**
@@ -45,7 +49,7 @@ public class TLocationData {
      * @param fDate
      * @param fMarkerOption
      */
-    public TLocationData(String fName, double fLatitude, double fLongitude, String fType, String fDescription, String fDate, MarkerOptions fMarkerOption) {
+    public TLocationData(String fName, double fLatitude, double fLongitude, String fType, String fDescription, String fDate, MarkerOptions fMarkerOption, Bitmap fIcon) {
         this.fName = fName;
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
@@ -53,17 +57,20 @@ public class TLocationData {
         this.fDescription = fDescription;
         this.fDate = fDate;
         this.fMarkerOption = fMarkerOption;
+        this.fIcon = fIcon;
+
     }
 
     /**
      * コンストラクタ
      */
-    public TLocationData(String fName, double fLatitude, double fLongitude ,String type){
+    public TLocationData(String fName, double fLatitude, double fLongitude ,String type, String description){
         this.fName = fName;
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
         this.fType = type;
-
+        this.fDescription = description;
+        this.fIcon = null;
         Calendar calendar = Calendar.getInstance();
         fDate = calendar.get(Calendar.YEAR) + "/" + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE);
 
@@ -85,6 +92,7 @@ public class TLocationData {
         this.fDescription = src.fDescription;
         this.fDate = src.fDate;
         this.fMarkerOption = src.fMarkerOption;
+        this.fIcon = src.fIcon;
     }
 
     /**
@@ -108,7 +116,7 @@ public class TLocationData {
      * @return
      */
     public String toString(){
-        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n" + fType + "\n" + fDate + "\n";
+        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n" + fType + "\n" + fDate + "\n" + fDescription + "\n";
         return str;
     }
 
@@ -123,6 +131,7 @@ public class TLocationData {
         pw.println(fLongitude);
         pw.println(fType);
         pw.println(fDate);
+        pw.println(fDescription);
     }
 
     /**
@@ -139,6 +148,8 @@ public class TLocationData {
         fLongitude = Double.parseDouble(strLongitude);
         fType = br.readLine();
         fDate = br.readLine();
+        fDescription = br.readLine();
+        fIcon = null;
 
         setMarkerOptions();
 
@@ -290,12 +301,25 @@ public class TLocationData {
                 this.fMarkerOption = new MarkerOptions();
                 this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
                         .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate )
-                        .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude)
+//                        .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude + "\n" + this.fDescription)
+                        .snippet(this.fDescription)
                         .icon(icons[i]);
                 break;
             }
         }
 
+    }
+
+    public Bitmap getfIcon() {
+        return fIcon;
+    }
+
+    public void setfIcon(Bitmap fIcon) {
+        this.fIcon = fIcon;
+    }
+
+    public String getListText(){
+        return fName.toString() + "  " + fDate.toString() + "\n" + fLatitude + "  " + fLongitude + "\n" + fDescription.toString();
     }
 }
 
