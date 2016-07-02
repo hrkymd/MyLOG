@@ -35,7 +35,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="5"
                 android:textSize="20sp"
-                android:text="@string/init_text"
+                android:hint="@string/init_text"
                 android:inputType="text"/>
 
             <Spinner
@@ -62,21 +62,69 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:textSize="20sp"
-            android:text="@string/description_text"
+            android:hint="@string/description_text"
             android:inputType="text" />
 
 
-        <ListView
-            android:id="@+id/place_List"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:background="@color/white">
-            <requestFocus />
-        </ListView>
+            android:orientation="horizontal"
+            android:layout_weight="1">
+
+            <ListView
+                android:id="@+id/place_List"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:background="@color/white">
+                <requestFocus />
+            </ListView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="5">
+
+                <TextView
+                    android:id="@+id/sorttext"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_weight="6"
+                    android:layout_gravity="center"
+                    android:text="@string/sort"/>
+
+                <RadioGroup
+                    android:id="@+id/RadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_gravity="center">
+
+                    <RadioButton android:text="@string/sort_of_date"
+                        android:id="@+id/RadioButton1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content">
+                    </RadioButton>
+                    <RadioButton android:text="@string/sort_of_name"
+                        android:id="@+id/RadioButton2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                    </RadioButton>
+                    <RadioButton android:text="@string/sort_of_type"
+                        android:id="@+id/RadioButton3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                    </RadioButton>
+
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

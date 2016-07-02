@@ -17,12 +17,16 @@ public class TLocationData {
     private String fName; //場所の名前
     private double fLatitude; //場所の位置情報(緯度)
     private double fLongitude; //場所の位置情報(経度)
+    private String fAddress; //
     private String fType; //場所の種類 (food, sightseeingなど)
+    private int fTypeNum; //場所の種類のインデックス
     private String fDescription; //場所の説明
-    private String fDate; //日付
+    private String fDate; //日付表示用
     private MarkerOptions fMarkerOption; //マーカー情報
 
     private Bitmap fIcon;//アイコン
+
+    static public final String DATE_PATTERN ="yyyy/MM/dd/HH/mm/ss";
 
     /**
      * デフォルトコンストラクタ
@@ -32,11 +36,14 @@ public class TLocationData {
         fName = "";
         fLatitude = Double.NaN;
         fLongitude = Double.NaN;
+        fAddress = "";
         fType = "";
+        fTypeNum = -1;
         fDescription = "";
         fDate = "";
         fMarkerOption = new MarkerOptions();
         fIcon = null;
+
     }
 
     /**
@@ -49,11 +56,13 @@ public class TLocationData {
      * @param fDate
      * @param fMarkerOption
      */
-    public TLocationData(String fName, double fLatitude, double fLongitude, String fType, String fDescription, String fDate, MarkerOptions fMarkerOption, Bitmap fIcon) {
+    public TLocationData(String fName, double fLatitude, double fLongitude,String fAddress, String fType, int fTypeNum, String fDescription, String fDate, MarkerOptions fMarkerOption, Bitmap fIcon) {
         this.fName = fName;
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
+        this.fAddress = fAddress;
         this.fType = fType;
+        this.fTypeNum = fTypeNum;
         this.fDescription = fDescription;
         this.fDate = fDate;
         this.fMarkerOption = fMarkerOption;
@@ -64,15 +73,22 @@ public class TLocationData {
     /**
      * コンストラクタ
      */
-    public TLocationData(String fName, double fLatitude, double fLongitude ,String type, String description){
+    public TLocationData(String fName, double fLatitude, double fLongitude, String address,String type, int typeNum, String description){
         this.fName = fName;
         this.fLatitude = fLatitude;
         this.fLongitude = fLongitude;
+        this.fAddress = address;
         this.fType = type;
+        this.fTypeNum = typeNum;
         this.fDescription = description;
         this.fIcon = null;
         Calendar calendar = Calendar.getInstance();
-        fDate = calendar.get(Calendar.YEAR) + "/" + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int date = calendar.get(Calendar.DATE);
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        fDate =  year + "/" + month + "/" + date + "/" + hour + ":" + minute ;
 
         Log.d("a", fType);
         setMarkerOptions();
@@ -88,7 +104,9 @@ public class TLocationData {
         this.fName = src.fName;
         this.fLatitude = src.fLatitude;
         this.fLongitude = src.fLongitude;
+        this.fAddress = src.fAddress;
         this.fType = src.fType;
+        this.fTypeNum = src.fTypeNum;
         this.fDescription = src.fDescription;
         this.fDate = src.fDate;
         this.fMarkerOption = src.fMarkerOption;
@@ -116,7 +134,7 @@ public class TLocationData {
      * @return
      */
     public String toString(){
-        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n" + fType + "\n" + fDate + "\n" + fDescription + "\n";
+        String str = fName + "\n" + fLatitude + "\n" + fLongitude + "\n" + fAddress + "\n" + fType + "\n" + fTypeNum +  "\n" + fDate + "\n" + fDescription + "\n";
         return str;
     }
 
@@ -129,7 +147,9 @@ public class TLocationData {
         pw.println(fName);
         pw.println(fLatitude);
         pw.println(fLongitude);
+        pw.println(fAddress);
         pw.println(fType);
+        pw.println(fTypeNum);
         pw.println(fDate);
         pw.println(fDescription);
     }
@@ -146,7 +166,10 @@ public class TLocationData {
         String strLongitude = br.readLine();
         fLatitude = Double.parseDouble(strLatitude);
         fLongitude = Double.parseDouble(strLongitude);
+        fAddress = br.readLine();
         fType = br.readLine();
+        String strtypeNum = br.readLine();
+        fTypeNum = Integer.parseInt(strtypeNum);
         fDate = br.readLine();
         fDescription = br.readLine();
         fIcon = null;
@@ -212,6 +235,24 @@ public class TLocationData {
 
 
     /**
+     * getfAddress
+     * 住所の取得
+     * @return
+     */
+    public String getfAddress() {
+        return fAddress;
+    }
+
+    /**
+     * setfAddress
+     * 住所の設定
+     * @param fAddress
+     */
+    public void setfAddress(String fAddress) {
+        this.fAddress = fAddress;
+    }
+
+    /**
      * getfType
      * 場所の種類の取得
      * @return
@@ -229,22 +270,23 @@ public class TLocationData {
         this.fType = fType;
     }
 
+
     /**
-     * getfDescription
-     * 説明の取得
+     * getfTypeNum
+     * 場所の種類インデックスの取得
      * @return
      */
-    public String getfDescription() {
-        return fDescription;
+    public int getfTypeNum() {
+        return fTypeNum;
     }
 
     /**
-     * setDescription
-     * 説明の設定
-     * @param fDescription
+     * setfTypeNum
+     * 場所の種類インデックスの設定
+     * @param fTypeNum
      */
-    public void setfDescription(String fDescription) {
-        this.fDescription = fDescription;
+    public void setfTypeNum(int fTypeNum) {
+        this.fTypeNum = fTypeNum;
     }
 
     /**
@@ -265,6 +307,23 @@ public class TLocationData {
         this.fDate = fDate;
     }
 
+    /**
+     * getfDescription
+     * 説明の取得
+     * @return
+     */
+    public String getfDescription() {
+        return fDescription;
+    }
+
+    /**
+     * setDescription
+     * 説明の設定
+     * @param fDescription
+     */
+    public void setfDescription(String fDescription) {
+        this.fDescription = fDescription;
+    }
 
     /**
      * getfMarkerOption
@@ -301,7 +360,6 @@ public class TLocationData {
                 this.fMarkerOption = new MarkerOptions();
                 this.fMarkerOption.position(new LatLng(this.fLatitude, this.fLongitude))
                         .title("Name : " + this.fName + " , type : " + fType + " Date : " + fDate )
-//                        .snippet( "Latitude : " + this.fLatitude + " , Longitude : " + this.fLongitude + "\n" + this.fDescription)
                         .snippet(this.fDescription)
                         .icon(icons[i]);
                 break;
@@ -319,7 +377,8 @@ public class TLocationData {
     }
 
     public String getListText(){
-        return fName.toString() + "  " + fDate.toString() + "\n" + fLatitude + "  " + fLongitude + "\n" + fDescription.toString();
+        return fName.toString() + "  " + fDate.toString() + "\n" + fAddress + "\n" + fDescription.toString();
     }
+
 }
 

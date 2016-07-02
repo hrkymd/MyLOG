@@ -1,6 +1,9 @@
 package jp.ac.titech.itpro.sdl.mylog;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
     // XMLからViewを生成するときに使う
@@ -71,5 +76,44 @@ public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
         textView.setText(items.get(position).getListText());
 
         return view;
+    }
+
+    public void sort(final String sortType) {
+
+        ArrayList<TLocationData> tmp;
+        tmp = new ArrayList<>(items);
+
+        Collections.sort(tmp, new Comparator<TLocationData>() {
+            @TargetApi(Build.VERSION_CODES.KITKAT)
+            @Override
+            public int compare(TLocationData lhs, TLocationData rhs) {
+                switch (sortType){
+                    case ("DATE") : //日付の時
+                        Log.d("A", "sortType = 0");
+                        if(lhs.getfDate().compareTo(rhs.getfDate()) != 0)
+                            return lhs.getfDate().compareTo(rhs.getfDate());
+                        break;
+
+                    case ("NAME") : //名前の時
+                        Log.d("A", "sortType = 1");
+                        if(lhs.getfName().compareTo(rhs.getfName()) != 0) {
+                            return lhs.getfName().compareTo(rhs.getfName());
+                        }
+                        break;
+
+                    case ("TYPE") : //種類の時
+                        Log.d("A", "sortType = 2");
+                        if(Integer.compare(lhs.getfTypeNum(), rhs.getfTypeNum()) != 0) {
+                            return Integer.compare(lhs.getfTypeNum(), rhs.getfTypeNum());
+                        }
+                        break;
+                }
+                return 0;
+            }
+        });
+
+        items.clear();
+        items.addAll(tmp);
+        this.notifyDataSetChanged();
     }
 }

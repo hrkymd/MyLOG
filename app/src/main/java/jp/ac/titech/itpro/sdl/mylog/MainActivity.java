@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,6 +26,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -51,6 +55,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -93,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements
     private Spinner typeSpinner;
 
     boolean firstPlace; // 最初に現在地を表示するためのフラフ
+
+    RadioGroup fRadioGroup;
 
     /** 
      *onCreate 
@@ -212,7 +220,23 @@ public class MainActivity extends AppCompatActivity implements
         typeSpinner = (Spinner) findViewById(R.id.type_spinner);
         typeSpinner.setAdapter(spinnerAdapter);
 
+        //初回起動時にnowLocationにカメラを移動するためにfalseにする
         firstPlace = false;
+
+        fRadioGroup = (RadioGroup)findViewById(R.id.RadioGroup);
+        fRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int id) {
+                if (-1 == id) {
+                    Toast.makeText(MainActivity.this, "クリアされました", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Log.d(TAG, "sort");
+                    RadioButton radioButton = (RadioButton) findViewById(id);
+                    sortOfList((String) radioButton.getText());
+                }
+            }
+        });
 
     }
 
@@ -411,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements
         state = UpdatingState.STOPPED;
     }
 
-    public void pushButton(View view) {
+    public void pushButton(View view) throws IOException {
         System.out.println("push Button");
 
         //キーボードを隠す
@@ -423,15 +447,19 @@ public class MainActivity extends AppCompatActivity implements
 
         //spinnerから種類を取得
         String type = (String)typeSpinner.getSelectedItem();
+        int typeNum = typeSpinner.getSelectedItemPosition();
 
         //EditTextから名前を取得
         EditText descriptionText = (EditText) findViewById(R.id.description_text);
         String desc = descriptionText.getText().toString();
 
-        TLocationData locationData = new TLocationData(entry, fNowLocation.getLatitude(), fNowLocation.getLongitude(), type, desc);
+        //座標から住所を調べる
+        String address = getAddress(fNowLocation.getLatitude(), fNowLocation.getLongitude());
+        Log.d(TAG, address);
+
+        TLocationData locationData = new TLocationData(entry, fNowLocation.getLatitude(), fNowLocation.getLongitude(), address, type, typeNum, desc);
         //ICONのセット
         setIcons(locationData);
-
 
         //名前がない場合は保存されない。
         if(locationData.getfName().equals("")){
@@ -460,8 +488,9 @@ public class MainActivity extends AppCompatActivity implements
             pw.write(str + "\n");
 
             for(int i = 0; i< fLocationList.size(); i++){
-                String strn = fLocationList.get(i).toString();
-                pw.write(strn);
+                //String strn = fLocationList.get(i).toString();
+                //pw.write(strn);
+                fLocationList.get(i).writeTo(pw);
             }
 
             pw.close();
@@ -485,7 +514,7 @@ public class MainActivity extends AppCompatActivity implements
 
             Log.d(TAG,"readfile");
         }catch (FileNotFoundException e){
-            System.out.println("ファイル読み込みエラー");
+            System.out.println("1:ファイル読み込みエラー");
         }catch (UnsupportedEncodingException e){
             Log.d(TAG,"UnsupportedEncodingException");
         }catch (IOException e){
@@ -611,4 +640,38 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
     }
+
+    public void sortOfList(String sortType){
+        fAdapter.sort(sortType);
+    }
+
+    //座標を住所のStringへ変換
+    public String getAddress(double latitude, double longitude) throws IOException{
+
+        String string = new String();
+
+        //geocoderの宣言
+        Geocoder geocoder = new Geocoder(this.getApplicationContext(), Locale.JAPAN);
+        List<Address> list_address = geocoder.getFromLocation(latitude, longitude, 5);	//引数末尾は返す検索結果数
+
+        //ジオコーディングに成功したらStringへ
+        if (!list_address.isEmpty()){
+
+            Address address = list_address.get(0);
+            StringBuffer strbuf = new StringBuffer();
+
+            //adressをStringへ
+            for (int i = 1; i <= address.getMaxAddressLineIndex(); i++){
+                strbuf.append(address.getAddressLine(i));
+            }
+            string = strbuf.toString();
+        }
+        //listが空の場合
+        else {
+            Log.d(TAG, "Failed Geocoding");
+        }
+
+        return string;
+    }
+
 }
