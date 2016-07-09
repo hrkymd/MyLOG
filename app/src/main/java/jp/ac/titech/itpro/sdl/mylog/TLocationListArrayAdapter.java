@@ -3,7 +3,6 @@ package jp.ac.titech.itpro.sdl.mylog;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +31,7 @@ public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
      * @param items
      */
     public TLocationListArrayAdapter(Context context, int textViewResourceId, ArrayList<TLocationData> items){
-//    public TLocationListArrayAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId, items);
-//        super(context, textViewResourceId);
 
         // リソースIDと表示アイテムを保持
         this.textViewResourceId = textViewResourceId;
@@ -64,9 +61,6 @@ public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
             view = inflater.inflate(textViewResourceId, null);
         }
 
-        // 対象のアイテムを取得
-        //TLocationData item = new TLocationData(items.get(position));
-
         // アイコンをイメージビューに表示
         ImageView imageView = (ImageView)view.findViewWithTag("icon");
         imageView.setImageBitmap(items.get(position).getfIcon());
@@ -89,20 +83,17 @@ public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
             public int compare(TLocationData lhs, TLocationData rhs) {
                 switch (sortType){
                     case ("DATE") : //日付の時
-                        Log.d("A", "sortType = 0");
                         if(lhs.getfDate().compareTo(rhs.getfDate()) != 0)
                             return lhs.getfDate().compareTo(rhs.getfDate());
                         break;
 
                     case ("NAME") : //名前の時
-                        Log.d("A", "sortType = 1");
                         if(lhs.getfName().compareTo(rhs.getfName()) != 0) {
                             return lhs.getfName().compareTo(rhs.getfName());
                         }
                         break;
 
                     case ("TYPE") : //種類の時
-                        Log.d("A", "sortType = 2");
                         if(Integer.compare(lhs.getfTypeNum(), rhs.getfTypeNum()) != 0) {
                             return Integer.compare(lhs.getfTypeNum(), rhs.getfTypeNum());
                         }

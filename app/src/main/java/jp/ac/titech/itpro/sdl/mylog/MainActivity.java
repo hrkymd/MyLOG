@@ -427,6 +427,57 @@ public class MainActivity extends AppCompatActivity implements
         //位置情報の取得
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         state = UpdatingState.STARTED;
+
+        if(googleMap != null){
+
+            //マップ長押し時のイベント
+            googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    //キーボードを隠す
+                    fInputMethodManager.hideSoftInputFromWindow(fMainLayout.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                    //EditTextから名前を取得
+                    EditText editText = (EditText) findViewById(R.id.input_place_info);
+                    String entry = editText.getText().toString();
+
+                    //spinnerから種類を取得
+                    String type = (String)typeSpinner.getSelectedItem();
+                    int typeNum = typeSpinner.getSelectedItemPosition();
+
+                    //EditTextから名前を取得
+                    EditText descriptionText = (EditText) findViewById(R.id.description_text);
+                    String desc = descriptionText.getText().toString();
+
+                    //座標から住所を調べる
+                    String address = null;
+                    try {
+                        address = getAddress(latLng.latitude, latLng.longitude);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, address);
+
+                    TLocationData locationData = new TLocationData(entry, latLng.latitude,latLng.longitude, address, type, typeNum, desc);
+                    //ICONのセット
+                    setIcons(locationData);
+
+                    //名前がない場合は保存されない。
+                    if(locationData.getfName().equals("")){
+                        Log.d(TAG, "Entry is empty");
+                    } else {
+                        moveCamera(locationData);
+                        //fLocationList.add(locationData);
+                        addMarkerToMap(locationData);
+                        fAdapter.add(locationData);
+                    }
+
+                    //登録後にエントリ文字列を削除する
+                    editText.setText("");
+                    descriptionText.setText("");
+                }
+            });
+        }
     }
 
     private void stopLocationUpdate() {
