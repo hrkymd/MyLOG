@@ -75,9 +75,8 @@ public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
     public void sort(final String sortType) {
 
         ArrayList<TLocationData> tmp;
-        tmp = new ArrayList<>(items);
 
-        Collections.sort(tmp, new Comparator<TLocationData>() {
+        Collections.sort(items, new Comparator<TLocationData>() {
             @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public int compare(TLocationData lhs, TLocationData rhs) {
@@ -103,8 +102,6 @@ public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
             }
         });
 
-        items.clear();
-        items.addAll(tmp);
         this.notifyDataSetChanged();
     }
 }

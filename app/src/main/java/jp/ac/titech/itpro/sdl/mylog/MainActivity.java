@@ -24,8 +24,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements
     private GoogleMap googleMap = null;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    private boolean requestingLocationUpdate;
     private enum UpdatingState {STOPPED, REQUESTING, STARTED}
 
     private UpdatingState state = UpdatingState.STOPPED;
@@ -88,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     private ArrayList<TLocationData> fLocationList = null;
     String filename = "locationLog.txt"; //ログを入れるファイル
-    private ListView fListView = null; //表示するリストビュー
+    private GridView fListView = null; //表示するリストビュー
     private TLocationListArrayAdapter fAdapter = null; //リスト表示のためのアダプター
     private LinearLayout fMainLayout;
     private InputMethodManager fInputMethodManager;
@@ -143,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements
         readfile(filename);
 
         //LayoutファイルのListViewのリソースID
-        fListView = (ListView) findViewById(R.id.place_List);
+        fListView = (GridView) findViewById(R.id.place_List);
 
         //row.xmlによるレイアウト
         //fAdapter = new ArrayAdapter<TLocationData>(this, R.layout.row);
@@ -179,31 +178,34 @@ public class MainActivity extends AppCompatActivity implements
                 moveCamera(fLocationList.get(position));
 
                 //選択したListViewアイテムを表示する
-                ListView list = (ListView) parent;
+                GridView list = (GridView) parent;
                 String selectedItem = list.getItemAtPosition(position).toString();
                 //Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, selectedItem);
+
             }
         });
 
-        //ListVIewアイテムの長押しでListViewアイテムを削除する
+        //ListViewアイテムの長押しでListViewアイテムを削除する
         //リスナーはAdapterView.onItemLongClickListener()を利用する
-        fListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
 
+        //fListView.setLongClickable(true);
+
+        fListView.setOnItemLongClickListener(new GridView.OnItemLongClickListener(){
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG,"Longclick");
 
                 //キーボードを隠す
                 fInputMethodManager.hideSoftInputFromWindow(fMainLayout.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-                ListView list = (ListView) parent;
+                GridView list = (GridView) parent;
                 TLocationData selectedItem = (TLocationData) list.getItemAtPosition(position);
 
                 Log.d(TAG, "Long click : " + selectedItem + "position : " + position);
                 showDialogFragment(selectedItem, position);
 
-
-                return false;
+                return true;
             }
         });
 

@@ -6,4 +6,10 @@
 
     <color name="white">#ffffff</color>
     <color name="green">#94cb08</color>
+
+    <color name="textColor">#000000</color>
+
+    <color name="gridColor">#AFEEEE</color>
+    <color name="gridItemColor">#FFFFBF</color>
+    <color name="Button_background">#DCDCDC</color>
 </resources>
