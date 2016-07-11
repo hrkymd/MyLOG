@@ -10,9 +10,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
     // XMLからViewを生成するときに使う
@@ -82,9 +85,22 @@ public class TLocationListArrayAdapter extends ArrayAdapter<TLocationData> {
             public int compare(TLocationData lhs, TLocationData rhs) {
                 switch (sortType){
                     case ("DATE") : //日付の時
-                        if(lhs.getfDate().compareTo(rhs.getfDate()) != 0)
-                            return lhs.getfDate().compareTo(rhs.getfDate());
-                        break;
+
+                        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy/MM/dd/HH:mm");
+                        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd/HH:mm");
+
+                        // Date型変換
+                        try {
+                            Date formatDate1 = sdf1.parse(lhs.getfDate());
+                            Date formatDate2 = sdf2.parse(rhs.getfDate());
+
+                            if(formatDate1.compareTo(formatDate2) != 0)
+                            return formatDate1.compareTo(formatDate2);
+                            break;
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
 
                     case ("NAME") : //名前の時
                         if(lhs.getfName().compareTo(rhs.getfName()) != 0) {

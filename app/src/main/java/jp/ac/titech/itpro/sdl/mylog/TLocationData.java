@@ -26,7 +26,7 @@ public class TLocationData {
 
     private Bitmap fIcon;//アイコン
 
-    static public final String DATE_PATTERN ="yyyy/MM/dd/HH/mm/ss";
+    static public final String DATE_PATTERN ="yyyy/MM/dd/HH/mm:ss";
 
     /**
      * デフォルトコンストラクタ

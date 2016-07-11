@@ -705,7 +705,7 @@ public class MainActivity extends AppCompatActivity implements
 
         //geocoderの宣言
         Geocoder geocoder = new Geocoder(this.getApplicationContext(), Locale.JAPAN);
-        List<Address> list_address = geocoder.getFromLocation(latitude, longitude, 5);	//引数末尾は返す検索結果数
+        List<Address> list_address = geocoder.getFromLocation(latitude, longitude, 8);	//引数末尾は返す検索結果数
 
         //ジオコーディングに成功したらStringへ
         if (!list_address.isEmpty()){
