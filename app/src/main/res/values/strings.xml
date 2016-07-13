@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MyLOG</string>
     <string name="toast_requires_permission">This application requires permission %s</string>
-    <string name="Back_button_label">ADD]</string>
+    <string name="Back_button_label">ADD</string>
     <string name="init_text">名前</string>
     <string name="description_text">説明</string>
     <string name="sort">並び替え</string>
