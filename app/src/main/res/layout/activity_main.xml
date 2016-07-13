@@ -27,64 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:layout_weight="2.5">
-
-            <EditText
-                android:id="@+id/input_place_info"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="5"
-                android:textSize="18dp"
-                android:hint="@string/init_text"
-                android:inputType="text"/>
-
-            <Spinner
-                android:id="@+id/type_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-
-            <Button
-                android:id="@+id/ok_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@color/Button_background"
-                android:layout_weight="1"
-                android:textSize="18dp"
-                android:layout_gravity="right"
-                android:text="@string/Back_button_label"
-                android:onClick="pushButton"/>
-
-        </LinearLayout>
-
-        <EditText android:id="@+id/description_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="2.5"
-            android:textSize="18dp"
-            android:hint="@string/description_text"
-            android:inputType="text" />
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
             android:layout_weight="1"
             android:padding="5dp">
-
-            <!--<ListView-->
-                <!--android:id="@+id/place_List"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_weight="1"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:focusable="true"-->
-                <!--android:focusableInTouchMode="true"-->
-                <!--android:background="@color/white">-->
-                <!--<requestFocus />-->
-            <!--</ListView>-->
 
             <GridView
                 android:id="@+id/place_List"
@@ -99,8 +43,6 @@
                 android:verticalSpacing="10dp"
                 android:horizontalSpacing="5dp"
                 />
-
-                <!--/>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -147,6 +89,49 @@
                 </RadioGroup>
             </LinearLayout>
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="2.5">
+
+            <EditText
+                android:id="@+id/input_place_info"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:textSize="18dp"
+                android:hint="@string/init_text"
+                android:inputType="text"/>
+
+            <Spinner
+                android:id="@+id/type_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+
+            <Button
+                android:id="@+id/ok_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/Button_background"
+                android:layout_weight="1"
+                android:textSize="18dp"
+                android:layout_gravity="right"
+                android:text="@string/Back_button_label"
+                android:onClick="pushButton"/>
+
+        </LinearLayout>
+
+        <EditText android:id="@+id/description_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2.5"
+            android:textSize="18dp"
+            android:hint="@string/description_text"
+            android:inputType="text" />
 
     </LinearLayout>
 
