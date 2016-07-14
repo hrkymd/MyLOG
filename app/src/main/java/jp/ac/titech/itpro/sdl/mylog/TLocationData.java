@@ -86,7 +86,14 @@ public class TLocationData {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
         int date = calendar.get(Calendar.DATE);
-        int hour = calendar.get(Calendar.HOUR);
+        int hour;
+        if(calendar.get(Calendar.AM_PM) == 0) { //午前
+            hour = calendar.get(Calendar.HOUR);
+        }
+        else { //午後なら1
+            hour = calendar.get(Calendar.HOUR) + 12;
+        }
+
         int minute = calendar.get(Calendar.MINUTE);
         fDate =  year + "/" + month + "/" + date + "/" + hour + ":" + minute ;
 

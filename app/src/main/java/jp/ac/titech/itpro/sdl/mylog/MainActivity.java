@@ -145,24 +145,11 @@ public class MainActivity extends AppCompatActivity implements
         fListView = (GridView) findViewById(R.id.place_List);
 
         //row.xmlによるレイアウト
-        //fAdapter = new ArrayAdapter<TLocationData>(this, R.layout.row);
         fAdapter = new TLocationListArrayAdapter(this, R.layout.row, fLocationList);
         fMainLayout = (LinearLayout)findViewById(R.id.mainLayout);
         fInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 
         fListView.setAdapter(fAdapter);
-
-//        for(int i = 0; i < fLocationList.size(); i++) {
-//        for(int i = 0; i < 4; i++) {
-//            Log.d(TAG, "fLocationList size : " + fLocationList.size());
-//            Log.d(TAG, "fName [ " + i + " ]: " + fLocationList.get(i).getfName());
-//            Log.d(TAG, "fLatitude  [ " + i + " ]:  " + fLocationList.get(i).getfLatitude());
-//            Log.d(TAG, "fLongitude  [ " + i + " ]:  " + fLocationList.get(i).getfLongitude());
-            //ICONのセット
-            //setIcons(fLocationList.get(i));
-//            Log.d("error", "error error error error error error");
-//            fAdapter.add(fLocationList.get(i));
-//        }
 
         //ListViewアイテムを選択した場合の動作
         fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -188,9 +175,6 @@ public class MainActivity extends AppCompatActivity implements
 
         //ListViewアイテムの長押しでListViewアイテムを削除する
         //リスナーはAdapterView.onItemLongClickListener()を利用する
-
-        //fListView.setLongClickable(true);
-
         fListView.setOnItemLongClickListener(new GridView.OnItemLongClickListener(){
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -270,8 +254,6 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "onResume");
         super.onResume();
         //readfile(filename);
-        //fAdapter = new TLocationListArrayAdapter(this, R.layout.row, fLocationList);
-        //fListView.setAdapter(fAdapter);
 
         if (state != UpdatingState.STARTED && googleApiClient.isConnected()) {
             startLocationUpdate(true);
@@ -290,9 +272,6 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "onPause");
         //writeFile(filename);
         //deleteFile(filename);
-
-        //Listの内容を削除
-        //fLocationList.clear();
 
         if (state == UpdatingState.STARTED)
             stopLocationUpdate();
@@ -330,10 +309,6 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "onConnected");
         if (state == UpdatingState.REQUESTING)
             startLocationUpdate(true);
-
-//        if(fLocationList.isEmpty() != true) {
-//            moveCamera(fLocationList.get(0));
-//        }
 
         //マーカーの表示
         addMarkerToMap();
@@ -726,5 +701,4 @@ public class MainActivity extends AppCompatActivity implements
 
         return string;
     }
-
 }
