@@ -87,10 +87,10 @@ public class TLocationData {
         int month = calendar.get(Calendar.MONTH) + 1;
         int date = calendar.get(Calendar.DATE);
         int hour;
-        if(calendar.get(Calendar.AM_PM) == 0) { //午前
+        if (calendar.get(Calendar.AM_PM) == 0) {
             hour = calendar.get(Calendar.HOUR);
         }
-        else { //午後なら1
+        else {
             hour = calendar.get(Calendar.HOUR) + 12;
         }
 
